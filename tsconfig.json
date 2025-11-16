@@ -20,7 +20,7 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["src", "index.ts"],
+  "include": ["src", "index.ts", "App.tsx"],
   "exclude": ["node_modules"],
   "extends": "expo/tsconfig.base"
 }
