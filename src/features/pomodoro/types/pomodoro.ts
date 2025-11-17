@@ -1,5 +1,16 @@
+export type PomodoroPhase = "work" | "shortBreak" | "longBreak";
+
+export type PomodoroConfig = {
+  workSeconds: number;
+  shortBreakSeconds: number;
+  longBreakSeconds: number;
+  roundsUntilLongBreak: number;
+};
+
 export type PomodoroState = {
   seconds: number;
+  phase: PomodoroPhase;
+  round: number;
   isRunning: boolean;
 };
 
