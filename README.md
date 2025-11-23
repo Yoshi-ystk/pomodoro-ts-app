@@ -46,7 +46,7 @@ UI 仕様
 
 ---
 
-### 将来的な拡張予定（Optional）
+### 将来的な拡張予定
 - 振り返り（履歴）画面
 - セッション数の記録
 - 効果音（開始 / 終了 / フェーズ切替）
@@ -55,33 +55,20 @@ UI 仕様
 
 ---
 
-## Project Structure
+## ディレクトリ構成
 
-```text
-src/
-  components/
-    TimerControls.tsx
-    TimerDisplay.tsx
-  screens/
-    PomodoroScreen.tsx
-    SettingsScreen.tsx   ← 今後追加予定
-  types/
-  utils/
-    time.ts
-  features/
-    pomodoro/
-      hooks/
-        usePomodoroTimer.ts
-    types/
-      pomodoro.ts
-assets/
-docs/
-app.json
-App.tsx
-index.ts
+| パス                     | 説明                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| `src/`                   | アプリケーションの主要なソースコードを格納するルートディレクトリ                |
+| `src/features/`          | 機能ごとのロジック、Hooks、型定義を格納。本プロジェクトの設計思想の核となる部分 |
+| `src/features/pomodoro/` | ポモドーロタイマー機能の実装を全て含む                                          |
+| `src/screens/`           | アプリケーションの画面単位のルートコンポーネントを格納                          |
+| `src/components/`        | 再利用可能なUI部品や汎用コンポーネントを格納                                    |
+| `src/utils/`             | 汎用的なヘルパー関数やユーティリティロジックを格納                              |
+| `assets/`                | フォント、画像、サウンドなどの静的リソースを格納                                |
+| `docs/`                  | 設計文書、仕様書、アーキテクチャなど、開発に関するドキュメント一式を格納        |
+| `App.tsx`                | アプリケーションのエントリポイントとなるルートコンポーネント                    |
 
-
-```
 
 ---
 
