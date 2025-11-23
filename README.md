@@ -1,1 +1,125 @@
-# ポモドーロアプリ（TS版）
+# Pomodoro Timer App (React Native / Expo / TypeScript)
+
+集中と休憩のサイクルを効率的に管理する、カスタマイズ可能なポモドーロアプリです。
+標準の 25 分作業 + 5 分休憩の「基本モード」と、好みの作業スタイルに合わせて自由に設定できる「カスタムモード」を実装予定。
+
+## Features
+
+### 基本モード（デフォルト設定）
+ポモドーロ法の標準設定でタイマーを使用できます。
+- 作業時間：25 分
+- 短休憩：5 分
+- 1 セット：4 回
+- セット完了後の長休憩：15 分
+
+設定画面では読み取り専用で表示され、変更不可の固定モードです。
+
+---
+
+### カスタムモード（ユーザーが自由に設定可能）
+トグルスイッチで有効化すると、以下の項目を編集できます。
+
+ 設定できる項目
+
+- 作業時間：15〜60 分
+- 短休憩：3〜10 分
+- 長休憩：10〜30 分
+- 1 セットあたりの作業回数：3〜6 回
+
+UI 仕様
+
+- カスタム設定領域は、無効時はグレーアウト
+- トグル ON で即座に有効化
+- 調整 UI は ナンバーピッカー + +/- ボタンのハイブリッド
+  - 細かい調整に対応
+  - 一気にジャンプして値を選択することも可能
+
+---
+
+### タイマー機能
+- 残り時間を mm:ss 表記で表示
+- 開始 / 一時停止 / リセット
+- 作業 → 短休憩 → 次の作業 … を自動で進行
+- Set 完了後は長休憩に切り替え
+- 現在のフェーズやセット進行状況を表示
+
+
+---
+
+### 将来的な拡張予定（Optional）
+- 振り返り（履歴）画面
+- セッション数の記録
+- 効果音（開始 / 終了 / フェーズ切替）
+- 通知機能
+- シンプルテーマ / フォーカステーマの切り替え
+
+---
+
+## Project Structure
+
+```text
+src/
+  components/
+    TimerControls.tsx
+    TimerDisplay.tsx
+  screens/
+    PomodoroScreen.tsx
+    SettingsScreen.tsx   ← 今後追加予定
+  types/
+  utils/
+    time.ts
+  features/
+    pomodoro/
+      hooks/
+        usePomodoroTimer.ts
+    types/
+      pomodoro.ts
+assets/
+docs/
+app.json
+App.tsx
+index.ts
+
+
+```
+
+---
+
+## Tech Stack
+- React Native (Expo)
+- TypeScript
+- React Hooks
+- Custom Hooks Architecture
+- Modular Feature-based Structure
+
+---
+
+## Setup
+```zsh
+npm install
+npm start
+```
+Expo の開発環境で実行できます。
+
+---
+## Documentation (docs/)
+
+プロジェクト内には以下のドキュメントを整備しています。
+- functional-spec.md
+  機能仕様（基本モード・カスタムモードの動作、遷移仕様）
+- ui-design.md
+  各画面の UI 構成、ワイヤーフレーム
+- architecture.md
+  ディレクトリ構成 / コンポーネント設計 / Hooks 構造
+- states-and-flows.md
+  タイマー状態遷移（作業 → 休憩 → 長休憩）
+
+---
+
+## License
+MIT License
+
+---
+
+## Contribution
+バグ報告・提案は Issue / Pull Request で受け付けています。

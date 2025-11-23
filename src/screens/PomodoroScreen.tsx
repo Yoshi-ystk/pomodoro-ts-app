@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { usePomodoroTimer } from "../../features/pomodoro/hooks/usePomodoroTimer";
-import { formatTime } from "../../utils/time";
-import { TimerControls } from "../../components/TimerControls";
+import { usePomodoroTimer } from "../features/pomodoro/hooks/usePomodoroTimer";
+import { formatTime } from "../utils/time";
+import { TimerControls } from "../components/TimerControls";
 
 export const PomodoroScreen = () => {
   const { seconds, phase, round, isRunning, toggle, reset } =

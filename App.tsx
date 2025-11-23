@@ -1,5 +1,5 @@
 import React from "react";
-import { PomodoroScreen } from "./src/features/pomodoro/PomodoroScreen";
+import { PomodoroScreen } from "./src/screens/PomodoroScreen";
 
 export default function App() {
   return <PomodoroScreen />;
