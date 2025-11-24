@@ -19,4 +19,11 @@ export type PomodoroControls = {
   reset: () => void;
 };
 
+export type PomodoroSettings = {
+  phaseLabels: {
+    work: string;
+    shortBreak: string;
+    longBreak: string;
+  };
+};
 export type UsePomodoroTimerReturn = PomodoroState & PomodoroControls;
