@@ -1,4 +1,4 @@
-# Pomodoro Timer App (React Native / Expo / TypeScript)
+# FOCUSTEP (React Native / Expo / TypeScript)
 
 集中と休憩のサイクルを効率的に管理する、カスタマイズ可能なポモドーロアプリです。
 標準の 25 分作業 + 5 分休憩の「基本モード」と、好みの作業スタイルに合わせて自由に設定できる「カスタムモード」を実装。

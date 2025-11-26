@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "pomodoro-TS-App",
-    "slug": "pomodoro-TS-App",
+    "name": "FOCUSTEP",
+    "slug": "focustep",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "assets/images/icon.png",
+    "icon": "assets/images/focustep_icon_2048.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {

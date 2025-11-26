@@ -13,9 +13,9 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
-            name="Pomodoro"
+            name="FOCUSTEP"
             component={PomodoroScreen}
-            options={{ title: "Pomodoro" }}
+            options={{ title: "FOCUSTEP" }}
           />
           <Stack.Screen
             name="Settings"
