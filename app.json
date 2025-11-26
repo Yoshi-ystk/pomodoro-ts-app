@@ -8,23 +8,23 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "assets/images/splash-icon.png",
+      "image": "assets/images/focustep_icon_2048.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#303030"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "assets/images/focustep-adaptive-icon.png",
+        "backgroundColor": "#303030"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "assets/images/favicon.png"
+      "favicon": "assets/images/focustep-favicon@2x.png"
     }
   }
 }
