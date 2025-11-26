@@ -15,7 +15,8 @@ export type PomodoroState = {
 };
 
 export type PomodoroControls = {
-  toggle: () => void;
+  start: () => void;
+  pause: () => void;
   reset: () => void;
 };
 

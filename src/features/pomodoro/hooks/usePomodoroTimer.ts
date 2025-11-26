@@ -1,21 +1,9 @@
 import { useState, useEffect } from "react";
-import {
-  PomodoroConfig,
-  PomodoroPhase,
-  PomodoroState,
-  UsePomodoroTimerReturn,
-} from "../types/pomodoro";
+import { usePomodoroSettings } from "../contexts/PomodoroSettingsContext";
+import { PomodoroPhase, UsePomodoroTimerReturn } from "../types/pomodoro";
 
-const defaultConfig: PomodoroConfig = {
-  workSeconds: 25 * 60,
-  shortBreakSeconds: 5 * 60,
-  longBreakSeconds: 15 * 60,
-  roundsUntilLongBreak: 4,
-};
-
-export const usePomodoroTimer = (
-  config: PomodoroConfig = defaultConfig
-): UsePomodoroTimerReturn => {
+export const usePomodoroTimer = (): UsePomodoroTimerReturn => {
+  const { config } = usePomodoroSettings();
   const [phase, setPhase] = useState<PomodoroPhase>("work");
   const [round, setRound] = useState(1);
   const [seconds, setSeconds] = useState(config.workSeconds);
@@ -53,9 +41,10 @@ export const usePomodoroTimer = (
       setSeconds(config.workSeconds);
       setRound((r) => r + 1);
     }
-  }, [seconds]);
+  }, [seconds, config, round]);
 
-  const toggle = () => setIsRunning((prev) => !prev);
+  const start = () => setIsRunning(true);
+  const pause = () => setIsRunning(false);
 
   const reset = () => {
     setPhase("work");
@@ -64,5 +53,10 @@ export const usePomodoroTimer = (
     setIsRunning(false);
   };
 
-  return { seconds, phase, round, isRunning, toggle, reset };
+  // configが変更されたらタイマーをリセットする
+  useEffect(() => {
+    reset();
+  }, [config]);
+
+  return { seconds, phase, round, isRunning, start, pause, reset };
 };

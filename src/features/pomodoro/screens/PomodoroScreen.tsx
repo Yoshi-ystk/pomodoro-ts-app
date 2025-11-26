@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { usePomodoroTimer } from "../hooks/usePomodoroTimer";
 import { formatTime } from "../../../utils/time";
 import { TimerControls } from "../../../components/TimerControls";
-import { usePomodoroSettings } from "@/features/pomodoro/hooks/usePomodoroSettings";
+import { usePomodoroSettings } from "../contexts/PomodoroSettingsContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -15,9 +15,9 @@ type RootStackParamList = {
 export const PomodoroScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { config, isLoading, getPhaseLabel } = usePomodoroSettings();
-  const { seconds, phase, round, isRunning, toggle, reset } =
-    usePomodoroTimer(config);
+  const { isLoading, getPhaseLabel } = usePomodoroSettings();
+  const { seconds, phase, round, isRunning, start, pause, reset } =
+    usePomodoroTimer();
 
   const phaseLabel = getPhaseLabel(phase);
 
@@ -48,7 +48,12 @@ export const PomodoroScreen = () => {
       <Text style={styles.roundText}>{round} 周目</Text>
       <Text style={styles.time}>{formatTime(seconds)}</Text>
 
-      <TimerControls isRunning={isRunning} toggle={toggle} reset={reset} />
+      <TimerControls
+        isRunning={isRunning}
+        start={start}
+        pause={pause}
+        reset={reset}
+      />
     </View>
   );
 };

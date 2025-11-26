@@ -7,20 +7,15 @@ import {
   StyleSheet,
   Alert,
   Switch,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { usePomodoroSettings } from "../features/pomodoro/hooks/usePomodoroSettings";
+import { usePomodoroSettings } from "../features/pomodoro/contexts/PomodoroSettingsContext";
 
 export const SettingScreen = () => {
   const navigation = useNavigation();
-  const {
-    settings,
-    isLoading,
-    saveSettings,
-    saveConfig,
-    toggleCustomMode,
-    defaultConfig,
-  } = usePomodoroSettings();
+  const { settings, isLoading, saveSettings, saveConfig, defaultConfig } =
+    usePomodoroSettings();
 
   // ローカル状態で入力値を管理
   const [workLabel, setWorkLabel] = useState("");
@@ -92,7 +87,6 @@ export const SettingScreen = () => {
         await saveConfig(defaultConfig);
       }
 
-      await toggleCustomMode(isCustomMode);
       Alert.alert("保存完了", "設定を保存しました");
       navigation.goBack();
     } catch (error) {
@@ -198,7 +192,7 @@ export const SettingScreen = () => {
         <Text style={styles.title}>設定</Text>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.section}>
           <Text style={styles.label}>作業フェーズの表示名</Text>
           <TextInput
@@ -299,7 +293,7 @@ export const SettingScreen = () => {
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>保存</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -330,8 +324,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   content: {
-    flex: 1,
     padding: 20,
+    paddingBottom: 80,
   },
   section: {
     marginBottom: 24,
