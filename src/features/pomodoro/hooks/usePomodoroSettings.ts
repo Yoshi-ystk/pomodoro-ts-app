@@ -23,6 +23,8 @@ const defaultSettings: PomodoroSettings = {
     shortBreak: "短休憩",
     longBreak: "長休憩",
   },
+  useCustomConfig: false,
+  customConfig: defaultConfig,
 };
 
 export const usePomodoroSettings = () => {
@@ -48,8 +50,17 @@ export const usePomodoroSettings = () => {
         }
 
         if (settingsJson) {
-          const loadedSettings = JSON.parse(settingsJson) as PomodoroSettings;
-          setSettings(loadedSettings);
+          const loadedSettings = JSON.parse(
+            settingsJson
+          ) as Partial<PomodoroSettings>;
+          setSettings({
+            ...defaultSettings,
+            ...loadedSettings,
+            customConfig: {
+              ...defaultSettings.customConfig,
+              ...loadedSettings?.customConfig,
+            },
+          });
         }
       } catch (error) {
         console.error("設定の読み込みに失敗しました:", error);
@@ -76,18 +87,29 @@ export const usePomodoroSettings = () => {
     }
   }, []);
 
-  const saveSettings = useCallback(async (newSettings: PomodoroSettings) => {
-    try {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.SETTING,
-        JSON.stringify(newSettings)
-      );
-      setSettings(newSettings);
-    } catch (error) {
-      console.error("設定の保存に失敗しました:", error);
-      throw error;
-    }
-  }, []);
+  const saveSettings = useCallback(
+    async (nextSettings: Partial<PomodoroSettings>) => {
+      const mergedSettings: PomodoroSettings = {
+        ...settings,
+        ...nextSettings,
+        customConfig: {
+          ...settings.customConfig,
+          ...nextSettings.customConfig,
+        },
+      };
+      try {
+        await AsyncStorage.setItem(
+          STORAGE_KEYS.SETTING,
+          JSON.stringify(mergedSettings)
+        );
+        setSettings(mergedSettings);
+      } catch (error) {
+        console.error("設定の保存に失敗しました:", error);
+        throw error;
+      }
+    },
+    [settings]
+  );
 
   // phase表示名を更新する関数
   const updatePhaseLabel = useCallback(
@@ -104,6 +126,17 @@ export const usePomodoroSettings = () => {
     [settings, saveSettings]
   );
 
+  // カスタムモード切替ヘルパー
+  const toggleCustomMode = useCallback(
+    async (useCustom: boolean) => {
+      if (useCustom) {
+        await saveConfig(settings.customConfig);
+        await saveSettings({ useCustomConfig: true });
+      }
+    },
+    [settings.customConfig, saveConfig, saveSettings]
+  );
+
   // 現在のphaseの表示名を取得する関数
   const getPhaseLabel = useCallback(
     (phase: "work" | "shortBreak" | "longBreak"): string => {
@@ -116,8 +149,10 @@ export const usePomodoroSettings = () => {
     config,
     settings,
     isLoading,
+    defaultConfig,
     saveConfig,
     saveSettings,
+    toggleCustomMode,
     updatePhaseLabel,
     getPhaseLabel,
   };

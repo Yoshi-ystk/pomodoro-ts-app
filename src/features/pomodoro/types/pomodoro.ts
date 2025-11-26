@@ -25,5 +25,7 @@ export type PomodoroSettings = {
     shortBreak: string;
     longBreak: string;
   };
+  useCustomConfig: boolean;
+  customConfig: PomodoroConfig;
 };
 export type UsePomodoroTimerReturn = PomodoroState & PomodoroControls;
