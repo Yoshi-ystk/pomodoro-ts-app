@@ -21,13 +21,6 @@ export const PomodoroScreen = () => {
 
   const phaseLabel = getPhaseLabel(phase);
 
-  console.log({
-    phaseType: typeof phase,
-    phaseLabelType: typeof phaseLabel,
-    isRunningType: typeof isRunning,
-    secondsType: typeof seconds,
-  });
-
   if (isLoading) {
     return (
       <View style={styles.container}>
