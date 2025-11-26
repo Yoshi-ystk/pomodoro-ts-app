@@ -1,4 +1,4 @@
-# 要件定義（Pomodoro Timer App）
+# 要件定義（FOCUSTEP - Pomodoro Timer App）
 
 ## 目的
 集中力維持と習慣化のため、ポモドーロ・テクニックをスマートフォンで実行できるアプリを提供する。
