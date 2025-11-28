@@ -3,9 +3,55 @@ import { act } from "react";
 import { usePomodoroTimer } from "../hooks/usePomodoroTimer";
 import { PomodoroConfig } from "../types/pomodoro";
 import React from "react";
+import * as PomodoroSettingsContext from "../contexts/PomodoroSettingsContext";
+
+// AsyncStorageをモック
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  getItem: jest.fn(() => Promise.resolve(null)),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+  clear: jest.fn(() => Promise.resolve()),
+}));
+
+// usePomodoroSettingsをモック
+jest.mock("../contexts/PomodoroSettingsContext", () => ({
+  usePomodoroSettings: jest.fn(),
+  PomodoroSettingsProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
+}));
 
 // renderHookヘルパー関数
-function renderHook<T>(hook: () => T) {
+function renderHook<T>(hook: () => T, config: PomodoroConfig) {
+  // モックの設定
+  const mockUsePomodoroSettings =
+    PomodoroSettingsContext.usePomodoroSettings as jest.Mock;
+  mockUsePomodoroSettings.mockReturnValue({
+    config,
+    settings: {
+      phaseLabels: {
+        work: "作業",
+        shortBreak: "短休憩",
+        longBreak: "長休憩",
+      },
+      useCustomConfig: false,
+      customConfig: config,
+    },
+    isLoading: false,
+    defaultConfig: config,
+    saveConfig: jest.fn(),
+    saveSettings: jest.fn(),
+    toggleCustomMode: jest.fn(),
+    updatePhaseLabel: jest.fn(),
+    getPhaseLabel: jest.fn((phase: string) => {
+      const labels: Record<string, string> = {
+        work: "作業",
+        shortBreak: "短休憩",
+        longBreak: "長休憩",
+      };
+      return labels[phase] || phase;
+    }),
+  });
+
   let result: T | undefined;
   const TestComponent = () => {
     result = hook();
@@ -15,6 +61,7 @@ function renderHook<T>(hook: () => T) {
   act(() => {
     renderer = create(React.createElement(TestComponent) as any);
   });
+
   // フックが実行されるまで待機
   if (result === undefined) {
     throw new Error("Hook result is undefined after render");
@@ -61,7 +108,7 @@ describe("usePomodoroTimer", () => {
         roundsUntilLongBreak: 4,
       };
 
-      const { result } = renderHook(() => usePomodoroTimer(testConfig));
+      const { result } = renderHook(() => usePomodoroTimer(), testConfig);
 
       // 初期状態の確認
       expect(result.current.phase).toBe("work");
@@ -71,7 +118,7 @@ describe("usePomodoroTimer", () => {
 
       // タイマーを開始
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       expect(result.current.isRunning).toBe(true);
 
@@ -88,7 +135,7 @@ describe("usePomodoroTimer", () => {
 
       // 休憩時間を開始
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       expect(result.current.isRunning).toBe(true);
 
@@ -112,14 +159,14 @@ describe("usePomodoroTimer", () => {
         roundsUntilLongBreak: 4,
       };
 
-      const { result } = renderHook(() => usePomodoroTimer(testConfig));
+      const { result } = renderHook(() => usePomodoroTimer(), testConfig);
 
       // 初期状態の確認（1周目）
       expect(result.current.round).toBe(1);
 
       // 1周目の作業を開始して完了
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       act(() => {
         jest.advanceTimersByTime(10000);
@@ -131,7 +178,7 @@ describe("usePomodoroTimer", () => {
 
       // 休憩を開始して完了
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       act(() => {
         jest.advanceTimersByTime(5000);
@@ -152,11 +199,11 @@ describe("usePomodoroTimer", () => {
         roundsUntilLongBreak: 4,
       };
 
-      const { result } = renderHook(() => usePomodoroTimer(testConfig));
+      const { result } = renderHook(() => usePomodoroTimer(), testConfig);
 
       // 1周目: 作業 → 休憩 → 作業（2周目）
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       act(() => {
         jest.advanceTimersByTime(10000);
@@ -165,7 +212,7 @@ describe("usePomodoroTimer", () => {
       expect(result.current.phase).toBe("shortBreak");
 
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       act(() => {
         jest.advanceTimersByTime(5000);
@@ -175,7 +222,7 @@ describe("usePomodoroTimer", () => {
 
       // 2周目: 作業 → 休憩 → 作業（3周目）
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       act(() => {
         jest.advanceTimersByTime(10000);
@@ -184,7 +231,7 @@ describe("usePomodoroTimer", () => {
       expect(result.current.phase).toBe("shortBreak");
 
       act(() => {
-        result.current.toggle();
+        result.current.start();
       });
       act(() => {
         jest.advanceTimersByTime(5000);

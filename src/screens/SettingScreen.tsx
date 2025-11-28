@@ -1,3 +1,13 @@
+/**
+ * ポモドーロタイマーの設定画面コンポーネント
+ *
+ * 以下の設定を変更できる：
+ * - フェーズの表示名（作業/短休憩/長休憩）
+ * - カスタムモードの有効/無効
+ * - カスタムモード時のタイマー設定（作業時間、休憩時間、セット回数）
+ *
+ * カスタムモードが無効の場合は、タイマー設定は読み取り専用（基本モード）。
+ */
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -14,26 +24,35 @@ import { usePomodoroSettings } from "../features/pomodoro/contexts/PomodoroSetti
 
 export const SettingScreen = () => {
   const navigation = useNavigation();
+
+  // 設定コンテキストから設定と保存関数を取得
   const { settings, isLoading, saveSettings, saveConfig, defaultConfig } =
     usePomodoroSettings();
 
-  // ローカル状態で入力値を管理
-  const [workLabel, setWorkLabel] = useState("");
-  const [shortBreakLabel, setShortBreakLabel] = useState("");
-  const [longBreakLabel, setLongBreakLabel] = useState("");
-  const [isCustomMode, setIsCustomMode] = useState(false);
-  const [workMinutes, setWorkMinutes] = useState(25);
-  const [shortBreakMinutes, setShortBreakMinutes] = useState(5);
-  const [longBreakMinutes, setLongBreakMinutes] = useState(15);
-  const [roundsUntilLongBreak, setRoundsUntilLongBreak] = useState(4);
+  /**
+   * ローカル状態で入力値を管理
+   * 設定を保存する前に、ユーザーの入力値を一時的に保持
+   */
+  const [workLabel, setWorkLabel] = useState(""); // 作業フェーズの表示名
+  const [shortBreakLabel, setShortBreakLabel] = useState(""); // 短休憩フェーズの表示名
+  const [longBreakLabel, setLongBreakLabel] = useState(""); // 長休憩フェーズの表示名
+  const [isCustomMode, setIsCustomMode] = useState(false); // カスタムモードの有効/無効
+  const [workMinutes, setWorkMinutes] = useState(25); // 作業時間（分）
+  const [shortBreakMinutes, setShortBreakMinutes] = useState(5); // 短休憩時間（分）
+  const [longBreakMinutes, setLongBreakMinutes] = useState(15); // 長休憩時間（分）
+  const [roundsUntilLongBreak, setRoundsUntilLongBreak] = useState(4); // 1セットあたりの作業回数
 
-  // 設定を読み込んでローカル状態に反映
+  /**
+   * 設定コンテキストから設定を読み込んでローカル状態に反映
+   * 設定が読み込まれたら、フォームの初期値を設定
+   */
   useEffect(() => {
     if (!isLoading && settings) {
       setWorkLabel(settings.phaseLabels.work);
       setShortBreakLabel(settings.phaseLabels.shortBreak);
       setLongBreakLabel(settings.phaseLabels.longBreak);
       setIsCustomMode(settings.useCustomConfig);
+      // 秒数を分に変換して表示
       setWorkMinutes(Math.floor(settings.customConfig.workSeconds / 60));
       setShortBreakMinutes(
         Math.floor(settings.customConfig.shortBreakSeconds / 60)
@@ -45,7 +64,16 @@ export const SettingScreen = () => {
     }
   }, [settings, isLoading]);
 
-  // 数値を増減する関数
+  /**
+   * 数値を増減する汎用関数
+   * 最小値と最大値の範囲内で値を変更
+   *
+   * @param current - 現在の値
+   * @param setter - 値を設定する関数
+   * @param min - 最小値
+   * @param max - 最大値
+   * @param delta - 増減する値（+1または-1）
+   */
   const adjustValue = (
     current: number,
     setter: (val: number) => void,
@@ -59,7 +87,10 @@ export const SettingScreen = () => {
     }
   };
 
-  // 設定を保存する関数
+  /**
+   * 設定を保存する関数
+   * ローカル状態の値を設定コンテキストに保存し、AsyncStorageにも永続化
+   */
   const handleSave = async () => {
     try {
       // カスタム設定を保存
@@ -95,16 +126,23 @@ export const SettingScreen = () => {
     }
   };
 
-  // カスタムモード切替
+  /**
+   * カスタムモードの切り替え処理
+   * カスタムモードが無効の場合、タイマー設定の入力欄が無効化される
+   */
   const handleToggleCustomMode = (value: boolean) => {
     setIsCustomMode(value);
   };
 
-  // 戻るボタンの処理
+  /**
+   * 戻るボタンの処理
+   * 設定画面を閉じて前の画面に戻る
+   */
   const handleBack = () => {
     navigation.goBack();
   };
 
+  // 設定の読み込み中はローディング表示
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -113,7 +151,10 @@ export const SettingScreen = () => {
     );
   }
 
-  // ナンバーピッカーコンポーネント
+  /**
+   * 数値入力用のナンバーピッカーコンポーネント
+   * +/-ボタンと数値表示で構成され、カスタムモードが無効の場合は無効化される
+   */
   const NumberPicker = ({
     label,
     value,
@@ -121,6 +162,7 @@ export const SettingScreen = () => {
     max,
     onDecrease,
     onIncrease,
+    onValueChange,
     disabled = false,
   }: {
     label: string;
@@ -129,62 +171,152 @@ export const SettingScreen = () => {
     max: number;
     onDecrease: () => void;
     onIncrease: () => void;
+    onValueChange?: (newValue: number) => void;
     disabled?: boolean;
-  }) => (
-    <View style={styles.section}>
-      <Text style={[styles.label, disabled && styles.labelDisabled]}>
-        {label}
-      </Text>
-      <View style={styles.numberPickerContainer}>
-        <TouchableOpacity
-          style={[styles.numberButton, disabled && styles.numberButtonDisabled]}
-          onPress={onDecrease}
-          disabled={disabled}
-        >
-          <Text
+  }) => {
+    const [isPressing, setIsPressing] = React.useState(false);
+    const pressIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+    const [inputValue, setInputValue] = React.useState(value.toString());
+
+    // 値が変更されたら入力値も更新
+    React.useEffect(() => {
+      setInputValue(value.toString());
+    }, [value]);
+
+    // 長押しの処理
+    const handlePressIn = (isIncrease: boolean) => {
+      if (disabled) return;
+
+      setIsPressing(true);
+
+      // 最初の1回はすぐに実行
+      if (isIncrease) {
+        onIncrease();
+      } else {
+        onDecrease();
+      }
+
+      // その後は一定間隔で連続実行
+      pressIntervalRef.current = setInterval(() => {
+        if (isIncrease) {
+          onIncrease();
+        } else {
+          onDecrease();
+        }
+      }, 150); // 150msごとに実行
+    };
+
+    const handlePressOut = () => {
+      setIsPressing(false);
+      if (pressIntervalRef.current) {
+        clearInterval(pressIntervalRef.current);
+        pressIntervalRef.current = null;
+      }
+    };
+
+    // クリーンアップ
+    React.useEffect(() => {
+      return () => {
+        if (pressIntervalRef.current) {
+          clearInterval(pressIntervalRef.current);
+        }
+      };
+    }, []);
+
+    // 直接入力の処理
+    const handleInputChange = (text: string) => {
+      setInputValue(text);
+    };
+
+    const handleInputBlur = () => {
+      const numValue = parseInt(inputValue, 10);
+      if (
+        !isNaN(numValue) &&
+        numValue >= min &&
+        numValue <= max &&
+        onValueChange
+      ) {
+        onValueChange(numValue);
+      } else {
+        // 無効な値の場合は元の値に戻す
+        setInputValue(value.toString());
+      }
+    };
+
+    return (
+      <View style={styles.section}>
+        <Text style={[styles.label, disabled && styles.labelDisabled]}>
+          {label}
+        </Text>
+        <View style={styles.numberPickerContainer}>
+          <TouchableOpacity
             style={[
-              styles.numberButtonText,
-              disabled && styles.numberButtonTextDisabled,
+              styles.numberButton,
+              disabled && styles.numberButtonDisabled,
             ]}
+            onPressIn={() => handlePressIn(false)}
+            onPressOut={handlePressOut}
+            disabled={disabled}
           >
-            -
-          </Text>
-        </TouchableOpacity>
-        <View
-          style={[
-            styles.numberDisplay,
-            disabled && styles.numberDisplayDisabled,
-          ]}
-        >
-          <Text
+            <Text
+              style={[
+                styles.numberButtonText,
+                disabled && styles.numberButtonTextDisabled,
+              ]}
+            >
+              -
+            </Text>
+          </TouchableOpacity>
+
+          {disabled ? (
+            <View style={[styles.numberDisplay, styles.numberDisplayDisabled]}>
+              <Text
+                style={[
+                  styles.numberDisplayText,
+                  styles.numberDisplayTextDisabled,
+                ]}
+              >
+                {value}
+              </Text>
+            </View>
+          ) : (
+            <TextInput
+              style={styles.numberDisplayInput}
+              value={inputValue}
+              onChangeText={handleInputChange}
+              onBlur={handleInputBlur}
+              keyboardType="numeric"
+              selectTextOnFocus
+              maxLength={2}
+            />
+          )}
+
+          <TouchableOpacity
             style={[
-              styles.numberDisplayText,
-              disabled && styles.numberDisplayTextDisabled,
+              styles.numberButton,
+              disabled && styles.numberButtonDisabled,
             ]}
+            onPressIn={() => handlePressIn(true)}
+            onPressOut={handlePressOut}
+            disabled={disabled}
           >
-            {value}
-          </Text>
+            <Text
+              style={[
+                styles.numberButtonText,
+                disabled && styles.numberButtonTextDisabled,
+              ]}
+            >
+              +
+            </Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={[styles.numberButton, disabled && styles.numberButtonDisabled]}
-          onPress={onIncrease}
-          disabled={disabled}
-        >
-          <Text
-            style={[
-              styles.numberButtonText,
-              disabled && styles.numberButtonTextDisabled,
-            ]}
-          >
-            +
-          </Text>
-        </TouchableOpacity>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
+      {/* ヘッダー：戻るボタンとタイトル */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Text style={styles.backButtonText}>← 戻る</Text>
@@ -193,6 +325,7 @@ export const SettingScreen = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {/* フェーズ表示名の設定 */}
         <View style={styles.section}>
           <Text style={styles.label}>作業フェーズの表示名</Text>
           <TextInput
@@ -226,6 +359,7 @@ export const SettingScreen = () => {
           />
         </View>
 
+        {/* カスタムモードの切り替えスイッチ */}
         <View style={styles.section}>
           <View style={styles.toggleContainer}>
             <Text style={styles.label}>カスタムモード</Text>
@@ -236,6 +370,7 @@ export const SettingScreen = () => {
           </View>
         </View>
 
+        {/* カスタムモード時のタイマー設定（カスタムモードが無効の場合は無効化） */}
         <NumberPicker
           label="作業時間（分）"
           value={workMinutes}
@@ -245,6 +380,7 @@ export const SettingScreen = () => {
             adjustValue(workMinutes, setWorkMinutes, 15, 60, -1)
           }
           onIncrease={() => adjustValue(workMinutes, setWorkMinutes, 15, 60, 1)}
+          onValueChange={(newValue) => setWorkMinutes(newValue)}
           disabled={!isCustomMode}
         />
 
@@ -259,6 +395,7 @@ export const SettingScreen = () => {
           onIncrease={() =>
             adjustValue(shortBreakMinutes, setShortBreakMinutes, 3, 10, 1)
           }
+          onValueChange={(newValue) => setWorkMinutes(newValue)}
           disabled={!isCustomMode}
         />
 
@@ -273,6 +410,7 @@ export const SettingScreen = () => {
           onIncrease={() =>
             adjustValue(longBreakMinutes, setLongBreakMinutes, 10, 30, 1)
           }
+          onValueChange={(newValue) => setWorkMinutes(newValue)}
           disabled={!isCustomMode}
         />
 
@@ -287,9 +425,11 @@ export const SettingScreen = () => {
           onIncrease={() =>
             adjustValue(roundsUntilLongBreak, setRoundsUntilLongBreak, 3, 6, 1)
           }
+          onValueChange={(newValue) => setWorkMinutes(newValue)}
           disabled={!isCustomMode}
         />
 
+        {/* 設定を保存するボタン */}
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>保存</Text>
         </TouchableOpacity>
@@ -404,6 +544,20 @@ const styles = StyleSheet.create({
   },
   numberDisplayTextDisabled: {
     color: "#999",
+  },
+  numberDisplayInput: {
+    minWidth: 60,
+    marginHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    borderWidth: 1,
+    borderColor: "#007AFF",
   },
   labelDisabled: {
     color: "#999",
