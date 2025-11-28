@@ -4,36 +4,49 @@
 ```text
 src/
   screens/
-    PomodoroScreen.tsx
-    SettingsScreen.tsx
+    SettingScreen.tsx
   features/
     pomodoro/
+      __tests__/
+        PomodoroSettingsContext.test.tsx
+        usePomodoroTimer.test.ts
+      contexts/
+        PomodoroSettingsContext.tsx
       hooks/
-      components/
+        usePomodoroTimer.ts
+      screens/
+        PomodoroScreen.tsx
       types/
-      utils/
+        pomodoro.ts
   components/
-  constants/
-  types/
+    TimerControls.tsx
+    TimerDisplay.tsx
   utils/
+    __tests__/
+      time.test.ts
+    time.ts
 ```
 
 ## 役割定義
 
-- screens/
-  - 画面単位の UI コンテナ
+- `screens/`
+  - アプリケーションの画面単位のルートコンポーネント
+  - `SettingScreen.tsx`: 設定画面
 
-- features/pomodoro/
-  - ポモドーロ機能に特化したロジック・UI・型・ユーティリティ
+- `features/pomodoro/`
+  - ポモドーロ機能に特化した実装を全て含む
+  - `contexts/`: 設定管理のコンテキスト（AsyncStorage連携）
+  - `hooks/`: タイマーロジックのカスタムフック
+  - `screens/`: ポモドーロタイマーのメイン画面
+  - `types/`: ポモドーロ関連の型定義
+  - `__tests__/`: テストコード
 
-- components/
-  - 再利用可能な共通コンポーネント（ボタンなど）
+- `components/`
+  - 再利用可能なUI部品
+  - `TimerDisplay.tsx`: タイマー表示コンポーネント
+  - `TimerControls.tsx`: タイマー制御ボタンコンポーネント
 
-- constants/
-  - カラーテーマ、固定値
-
-- types/
-  - アプリ全体で共有する型
-
-- utils/
-  - 共通のユーティリティ関数
+- `utils/`
+  - 汎用的なヘルパー関数
+  - `time.ts`: 時間フォーマット関数
+  - `__tests__/`: テストコード

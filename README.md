@@ -31,17 +31,19 @@ UI 仕様
 - カスタム設定領域は、無効時はグレーアウト
 - トグル ON で即座に有効化
 - 調整 UI は ナンバーピッカー + +/- ボタンのハイブリッド
-  - 細かい調整に対応
-  - 一気にジャンプして値を選択することも可能
+  - +/- ボタンの長押しで連続して値を変更可能
+  - 数字部分をタップして直接入力も可能
+  - 細かい調整と一気にジャンプの両方に対応
 
 ---
 
 ### タイマー機能
-- 残り時間を mm:ss 表記で表示
+- 残り時間を mm:ss 表記で表示（Orbitronフォント使用）
 - 開始 / 一時停止 / リセット
 - 作業 → 短休憩 → 次の作業 … を自動で進行
 - Set 完了後は長休憩に切り替え
 - 現在のフェーズやセット進行状況を表示
+- フェーズの表示名をカスタマイズ可能
 
 
 ---
@@ -57,17 +59,19 @@ UI 仕様
 
 ## ディレクトリ構成
 
-| パス                     | 説明                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------- |
-| `src/`                   | アプリケーションの主要なソースコードを格納するルートディレクトリ                |
-| `src/features/`          | 機能ごとのロジック、Hooks、型定義を格納。本プロジェクトの設計思想の核となる部分 |
-| `src/features/pomodoro/` | ポモドーロタイマー機能の実装を全て含む                                          |
-| `src/screens/`           | アプリケーションの画面単位のルートコンポーネントを格納                          |
-| `src/components/`        | 再利用可能なUI部品や汎用コンポーネントを格納                                    |
-| `src/utils/`             | 汎用的なヘルパー関数やユーティリティロジックを格納                              |
-| `assets/`                | フォント、画像、サウンドなどの静的リソースを格納                                |
-| `docs/`                  | 設計文書、仕様書、アーキテクチャなど、開発に関するドキュメント一式を格納        |
-| `App.tsx`                | アプリケーションのエントリポイントとなるルートコンポーネント                    |
+| パス                     | 説明                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| `src/`                   | アプリケーションの主要なソースコードを格納するルートディレクトリ                 |
+| `src/features/`          | 機能ごとのロジック、Hooks、型定義を格納。本プロジェクトの設計思想の核となる部分  |
+| `src/features/pomodoro/` | ポモドーロタイマー機能の実装を全て含む                                           |
+| `src/screens/`           | アプリケーションの画面単位のルートコンポーネントを格納                           |
+| `src/components/`        | 再利用可能なUI部品や汎用コンポーネントを格納（TimerDisplay, TimerControls など） |
+| `src/utils/`             | 汎用的なヘルパー関数やユーティリティロジックを格納                               |
+| `src/**/__tests__/`      | 各機能のテストコードを格納                                                       |
+| `assets/`                | フォント、画像、サウンドなどの静的リソースを格納                                 |
+| `assets/fonts/`          | カスタムフォントファイル（Orbitron）を格納                                       |
+| `docs/`                  | 設計文書、仕様書、アーキテクチャなど、開発に関するドキュメント一式を格納         |
+| `App.tsx`                | アプリケーションのエントリポイントとなるルートコンポーネント                     |
 
 
 ---
@@ -78,6 +82,8 @@ UI 仕様
 - React Hooks
 - Custom Hooks Architecture
 - Modular Feature-based Structure
+- Jest (テストフレームワーク)
+- React Test Renderer (コンポーネントテスト)
 
 ---
 
@@ -88,23 +94,62 @@ npm start
 ```
 Expo の開発環境で実行できます。
 
+### テストの実行
+```zsh
+# すべてのテストを実行
+npm test
+
+# 特定のテストファイルのみ実行
+npm test -- usePomodoroTimer.test.ts
+
+# ウォッチモードで実行
+npm test -- --watch
+
+# カバレッジレポートを表示
+npm test -- --coverage
+```
+
 ---
+## Testing
+
+プロジェクトには以下のテストが実装されています：
+
+- `src/utils/__tests__/time.test.ts` - 時間フォーマット関数のテスト
+- `src/features/pomodoro/__tests__/usePomodoroTimer.test.ts` - タイマーフックのテスト
+- `src/features/pomodoro/__tests__/PomodoroSettingsContext.test.tsx` - 設定コンテキストのテスト
+
+すべてのテストは `npm test` で実行できます。
+
+---
+
 ## Documentation (docs/)
 
 プロジェクト内には以下のドキュメントを整備しています。
-- functional-spec.md
-  機能仕様（基本モード・カスタムモードの動作、遷移仕様）
-- ui-design.md
-  各画面の UI 構成、ワイヤーフレーム
-- architecture.md
-  ディレクトリ構成 / コンポーネント設計 / Hooks 構造
-- states-and-flows.md
-  タイマー状態遷移（作業 → 休憩 → 長休憩）
+- `requirements.md` - 要件定義
+- `features-spec.md` - 機能仕様（基本モード・カスタムモードの動作、遷移仕様）
+- `screen-flow.md` - 画面遷移の仕様
+- `architecture.md` - ディレクトリ構成 / コンポーネント設計 / Hooks 構造
+- `data-model.md` - データモデルの定義
 
 ---
 
 ## License
 MIT License
+
+---
+
+## Fonts
+
+本プロジェクトではタイマー表示に「Orbitron」フォントを使用しています。
+
+- フォントファイルは `assets/fonts/` に同梱されています
+- タイマー表示部分のみに適用（設定画面はシステムフォント）
+- Copyright 2018 The Orbitron Project Authors
+- Reserved Font Name: "Orbitron"
+- License: SIL Open Font License 1.1
+- Source: https://github.com/theleagueof/orbitron
+
+ライセンス詳細は [OFL 1.1](https://scripts.sil.org/OFL) を参照してください。
 
 ---
 

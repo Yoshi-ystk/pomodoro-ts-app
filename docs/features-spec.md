@@ -2,40 +2,45 @@
 
 ## フェーズ
 `phase:`
-- `focus`（作業）
-- `short_break`（短休憩）
-- `long_break`（長休憩）
+- `"work"`（作業）
+- `"shortBreak"`（短休憩）
+- `"longBreak"`（長休憩）
 
 ## フェーズ遷移
-`focus` → `short_break`（1〜3回目の作業後）
-`focus` → `long_break`（4回目の作業後）
-`short_break` → `focus`
-`long_break` → `focus`（セット完了後、カウントリセット）
+- `work` → `shortBreak`（周回数が`roundsUntilLongBreak`の倍数でない場合）
+- `work` → `longBreak`（周回数が`roundsUntilLongBreak`の倍数の場合）
+- `shortBreak` → `work`（周回数をインクリメント）
+- `longBreak` → `work`（周回数をインクリメント）
 
 ## 状態
 ```typescript
-state = {
-  seconds: number,
-  phase: PomodoroPhase,
-  round: number,     // focus の回数
-  isRunning: boolean
+{
+  seconds: number,        // 残り秒数
+  phase: PomodoroPhase,   // 現在のフェーズ
+  round: number,          // 現在の周回数（1から開始）
+  isRunning: boolean     // タイマーが実行中かどうか
 }
 ```
 
 ## 開始
-- `isRunning` を `true` にすると 1秒ごとに減少
+- `isRunning` を `true` にすると 1秒ごとに `seconds` が減少
 
 ## 0秒になったとき
+- タイマーを自動停止（`isRunning = false`）
 - フェーズに応じて `seconds` を次の値にセット
 - 次の `phase` を決定
-- `round` を更新
+- 休憩から作業に戻る場合、`round` をインクリメント
 
 ## リセット
-- `seconds` = `focusMinutes` * 60
-- `phase` = `"focus"`
-- `round` = `0`
+- `seconds` = `config.workSeconds`
+- `phase` = `"work"`
+- `round` = `1`
 - `isRunning` = `false`
 
+## 設定変更時
+- 設定（`config`）が変更されたら、タイマーを自動リセット
+
 ## 例:
-`round` = 3 の `focus` が終わる → next = `short_break`
-`round` = 4 の `focus` が終わる → next = `long_break`
+- `round = 1` の `work` が終わる → `shortBreak`（`roundsUntilLongBreak = 4`の場合）
+- `round = 4` の `work` が終わる → `longBreak`（`roundsUntilLongBreak = 4`の場合）
+- `shortBreak` が終わる → `work`（`round = 2`に更新）
