@@ -134,14 +134,6 @@ export const SettingScreen = () => {
     setIsCustomMode(value);
   };
 
-  /**
-   * 戻るボタンの処理
-   * 設定画面を閉じて前の画面に戻る
-   */
-  const handleBack = () => {
-    navigation.goBack();
-  };
-
   // 設定の読み込み中はローディング表示
   if (isLoading) {
     return (
@@ -153,7 +145,7 @@ export const SettingScreen = () => {
 
   /**
    * 数値入力用のナンバーピッカーコンポーネント
-   * +/-ボタンと数値表示で構成され、カスタムモードが無効の場合は無効化される
+   * +/-ボタンと数値表示で構成され、カスタムモードが無効の場合は無効化
    */
   const NumberPicker = ({
     label,
@@ -316,14 +308,6 @@ export const SettingScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* ヘッダー：戻るボタンとタイトル */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← 戻る</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>設定</Text>
-      </View>
-
       <ScrollView contentContainerStyle={styles.content}>
         {/* フェーズ表示名の設定 */}
         <View style={styles.section}>
@@ -442,22 +426,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  backButton: {
-    marginRight: 15,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: "#007AFF",
   },
   title: {
     fontSize: 24,

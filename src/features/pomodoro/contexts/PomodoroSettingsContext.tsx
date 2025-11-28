@@ -78,7 +78,7 @@ type ProviderProps = {
 /**
  * ポモドーロ設定を提供するプロバイダーコンポーネント
  *
- * AsyncStorageから設定を読み込み、アプリ全体で設定を共有します。
+ * AsyncStorageから設定を読み込み、アプリ全体で設定を共有
  */
 export const PomodoroSettingsProvider = ({ children }: ProviderProps) => {
   // 状態管理
@@ -88,7 +88,7 @@ export const PomodoroSettingsProvider = ({ children }: ProviderProps) => {
 
   /**
    * アプリ起動時にAsyncStorageから設定を読み込む
-   * 保存された設定があればそれを、なければデフォルト設定を使用します
+   * 保存された設定があればそれを、なければデフォルト設定を使用
    */
   useEffect(() => {
     const loadSettings = async () => {
@@ -144,7 +144,7 @@ export const PomodoroSettingsProvider = ({ children }: ProviderProps) => {
 
   /**
    * タイマー設定を保存する関数
-   * AsyncStorageに保存し、状態も更新します
+   * AsyncStorageに保存し、状態も更新
    */
   const saveConfig = useCallback(async (newConfig: PomodoroConfig) => {
     try {
@@ -161,7 +161,7 @@ export const PomodoroSettingsProvider = ({ children }: ProviderProps) => {
 
   /**
    * アプリ設定を保存する関数
-   * 既存の設定とマージして保存します
+   * 既存の設定とマージして保存
    */
   const saveSettings = useCallback(
     async (nextSettings: Partial<PomodoroSettings>) => {
