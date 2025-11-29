@@ -15,6 +15,8 @@ import { PomodoroSettingsProvider } from "./src/features/pomodoro/contexts/Pomod
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { PomodoroScreen } from "./src/features/pomodoro/screens/PomodoroScreen";
 import { SettingScreen } from "./src/screens/SettingScreen";
+import { colors } from "./src/theme/colors";
+import { HeaderButton } from "./src/components/HeaderButton";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,12 +40,33 @@ export default function App() {
   return (
     <PomodoroSettingsProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: colors.background.dark,
+            },
+            headerTintColor: colors.text.accent, // 戻るボタンなどのアイコンの色
+            headerTitleStyle: {
+              fontFamily: "Orbitron-Bold",
+              fontSize: 18,
+              color: colors.text.accent,
+            },
+            headerShadowVisible: false,
+          }}
+        >
           {/* メイン画面：ポモドーロタイマー */}
           <Stack.Screen
             name="FOCUSTEP"
             component={PomodoroScreen}
-            options={{ title: "FOCUSTEP" }}
+            options={({ navigation }) => ({
+              title: "FOCUSTEP",
+              headerRight: () => (
+                <HeaderButton
+                  icon="≡"
+                  onPress={() => navigation.navigate("Settings")}
+                />
+              ),
+            })}
           />
           {/* 設定画面 */}
           <Stack.Screen

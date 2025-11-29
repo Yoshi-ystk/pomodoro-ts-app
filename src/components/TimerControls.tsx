@@ -7,6 +7,7 @@
 import React from "react";
 import { View, Button, StyleSheet } from "react-native";
 import { PomodoroControls } from "../features/pomodoro/types/pomodoro";
+import { CustomButton } from "./CustomButton";
 
 type Props = Omit<PomodoroControls, "toggle"> & {
   /** タイマーが実行中かどうか */
@@ -21,16 +22,35 @@ export const TimerControls: React.FC<Props> = ({
 }) => {
   return (
     <View style={styles.buttonRow}>
-      {/* タイマーが停止中の場合、「開始」ボタンを表示 */}
-      {!isRunning && <Button title="開始" onPress={start} />}
-      {/* タイマーが実行中の場合、「一時停止」ボタンを表示 */}
-      {isRunning && <Button title="一時停止" onPress={pause} />}
-      {/* 常に「リセット」ボタンを表示 */}
-      <Button title="リセット" onPress={reset} />
+      {!isRunning ? (
+        <CustomButton
+          title="開始"
+          onPress={start}
+          variant="primary"
+          size="large"
+        />
+      ) : (
+        <CustomButton
+          title="一時停止"
+          onPress={pause}
+          variant="secondary"
+          size="large"
+        />
+      )}
+      <CustomButton
+        title="リセット"
+        onPress={reset}
+        variant="outline"
+        size="medium"
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  buttonRow: { flexDirection: "row", gap: 10 },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 16,
+    alignItems: "center",
+  },
 });

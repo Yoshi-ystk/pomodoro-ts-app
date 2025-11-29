@@ -21,6 +21,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { usePomodoroSettings } from "../features/pomodoro/contexts/PomodoroSettingsContext";
+import { colors } from "../theme/colors";
+import { GradientBackground } from "../components/GradientBackground";
+import { CustomButton } from "../components/CustomButton";
 
 export const SettingScreen = () => {
   const navigation = useNavigation();
@@ -166,7 +169,6 @@ export const SettingScreen = () => {
     onValueChange?: (newValue: number) => void;
     disabled?: boolean;
   }) => {
-    const [isPressing, setIsPressing] = React.useState(false);
     const pressIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
     const [inputValue, setInputValue] = React.useState(value.toString());
 
@@ -178,8 +180,6 @@ export const SettingScreen = () => {
     // 長押しの処理
     const handlePressIn = (isIncrease: boolean) => {
       if (disabled) return;
-
-      setIsPressing(true);
 
       // 最初の1回はすぐに実行
       if (isIncrease) {
@@ -199,7 +199,6 @@ export const SettingScreen = () => {
     };
 
     const handlePressOut = () => {
-      setIsPressing(false);
       if (pressIntervalRef.current) {
         clearInterval(pressIntervalRef.current);
         pressIntervalRef.current = null;
@@ -307,162 +306,185 @@ export const SettingScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* フェーズ表示名の設定 */}
-        <View style={styles.section}>
-          <Text style={styles.label}>作業フェーズの表示名</Text>
-          <TextInput
-            style={styles.input}
-            value={workLabel}
-            onChangeText={setWorkLabel}
-            placeholder="例: 作業"
-            placeholderTextColor="#999"
-          />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.label}>短休憩フェーズの表示名</Text>
-          <TextInput
-            style={styles.input}
-            value={shortBreakLabel}
-            onChangeText={setShortBreakLabel}
-            placeholder="例: 短休憩"
-            placeholderTextColor="#999"
-          />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.label}>長休憩フェーズの表示名</Text>
-          <TextInput
-            style={styles.input}
-            value={longBreakLabel}
-            onChangeText={setLongBreakLabel}
-            placeholder="例: 長休憩"
-            placeholderTextColor="#999"
-          />
-        </View>
-
-        {/* カスタムモードの切り替えスイッチ */}
-        <View style={styles.section}>
-          <View style={styles.toggleContainer}>
-            <Text style={styles.label}>カスタムモード</Text>
-            <Switch
-              value={isCustomMode}
-              onValueChange={handleToggleCustomMode}
+    <GradientBackground>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.content}>
+          {/* フェーズ表示名の設定 */}
+          <View style={styles.section}>
+            <Text style={styles.label}>作業フェーズの表示名</Text>
+            <TextInput
+              style={styles.input}
+              value={workLabel}
+              onChangeText={setWorkLabel}
+              placeholder="例: 作業"
+              placeholderTextColor={colors.text.muted}
             />
           </View>
-        </View>
 
-        {/* カスタムモード時のタイマー設定（カスタムモードが無効の場合は無効化） */}
-        <NumberPicker
-          label="作業時間（分）"
-          value={workMinutes}
-          min={15}
-          max={60}
-          onDecrease={() =>
-            adjustValue(workMinutes, setWorkMinutes, 15, 60, -1)
-          }
-          onIncrease={() => adjustValue(workMinutes, setWorkMinutes, 15, 60, 1)}
-          onValueChange={(newValue) => setWorkMinutes(newValue)}
-          disabled={!isCustomMode}
-        />
+          <View style={styles.section}>
+            <Text style={styles.label}>短休憩フェーズの表示名</Text>
+            <TextInput
+              style={styles.input}
+              value={shortBreakLabel}
+              onChangeText={setShortBreakLabel}
+              placeholder="例: 短休憩"
+              placeholderTextColor={colors.text.muted}
+            />
+          </View>
 
-        <NumberPicker
-          label="短休憩時間（分）"
-          value={shortBreakMinutes}
-          min={3}
-          max={10}
-          onDecrease={() =>
-            adjustValue(shortBreakMinutes, setShortBreakMinutes, 3, 10, -1)
-          }
-          onIncrease={() =>
-            adjustValue(shortBreakMinutes, setShortBreakMinutes, 3, 10, 1)
-          }
-          onValueChange={(newValue) => setWorkMinutes(newValue)}
-          disabled={!isCustomMode}
-        />
+          <View style={styles.section}>
+            <Text style={styles.label}>長休憩フェーズの表示名</Text>
+            <TextInput
+              style={styles.input}
+              value={longBreakLabel}
+              onChangeText={setLongBreakLabel}
+              placeholder="例: 長休憩"
+              placeholderTextColor={colors.text.muted}
+            />
+          </View>
 
-        <NumberPicker
-          label="長休憩時間（分）"
-          value={longBreakMinutes}
-          min={10}
-          max={30}
-          onDecrease={() =>
-            adjustValue(longBreakMinutes, setLongBreakMinutes, 10, 30, -1)
-          }
-          onIncrease={() =>
-            adjustValue(longBreakMinutes, setLongBreakMinutes, 10, 30, 1)
-          }
-          onValueChange={(newValue) => setWorkMinutes(newValue)}
-          disabled={!isCustomMode}
-        />
+          {/* カスタムモードの切り替えスイッチ */}
+          <View style={styles.section}>
+            <View style={styles.toggleContainer}>
+              <Text style={styles.label}>カスタムモード</Text>
+              <Switch
+                value={isCustomMode}
+                onValueChange={handleToggleCustomMode}
+              />
+            </View>
+          </View>
 
-        <NumberPicker
-          label="1セットあたりの作業回数（回）"
-          value={roundsUntilLongBreak}
-          min={3}
-          max={6}
-          onDecrease={() =>
-            adjustValue(roundsUntilLongBreak, setRoundsUntilLongBreak, 3, 6, -1)
-          }
-          onIncrease={() =>
-            adjustValue(roundsUntilLongBreak, setRoundsUntilLongBreak, 3, 6, 1)
-          }
-          onValueChange={(newValue) => setWorkMinutes(newValue)}
-          disabled={!isCustomMode}
-        />
+          {/* カスタムモード時のタイマー設定（カスタムモードが無効の場合は無効化） */}
+          <NumberPicker
+            label="作業時間（分）"
+            value={workMinutes}
+            min={15}
+            max={60}
+            onDecrease={() =>
+              adjustValue(workMinutes, setWorkMinutes, 15, 60, -1)
+            }
+            onIncrease={() =>
+              adjustValue(workMinutes, setWorkMinutes, 15, 60, 1)
+            }
+            onValueChange={(newValue) => setWorkMinutes(newValue)}
+            disabled={!isCustomMode}
+          />
 
-        {/* 設定を保存するボタン */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>保存</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+          <NumberPicker
+            label="短休憩時間（分）"
+            value={shortBreakMinutes}
+            min={3}
+            max={10}
+            onDecrease={() =>
+              adjustValue(shortBreakMinutes, setShortBreakMinutes, 3, 10, -1)
+            }
+            onIncrease={() =>
+              adjustValue(shortBreakMinutes, setShortBreakMinutes, 3, 10, 1)
+            }
+            onValueChange={(newValue) => setShortBreakMinutes(newValue)}
+            disabled={!isCustomMode}
+          />
+
+          <NumberPicker
+            label="長休憩時間（分）"
+            value={longBreakMinutes}
+            min={10}
+            max={30}
+            onDecrease={() =>
+              adjustValue(longBreakMinutes, setLongBreakMinutes, 10, 30, -1)
+            }
+            onIncrease={() =>
+              adjustValue(longBreakMinutes, setLongBreakMinutes, 10, 30, 1)
+            }
+            onValueChange={(newValue) => setLongBreakMinutes(newValue)}
+            disabled={!isCustomMode}
+          />
+
+          <NumberPicker
+            label="1セットあたりの作業回数（回）"
+            value={roundsUntilLongBreak}
+            min={3}
+            max={6}
+            onDecrease={() =>
+              adjustValue(
+                roundsUntilLongBreak,
+                setRoundsUntilLongBreak,
+                3,
+                6,
+                -1
+              )
+            }
+            onIncrease={() =>
+              adjustValue(
+                roundsUntilLongBreak,
+                setRoundsUntilLongBreak,
+                3,
+                6,
+                1
+              )
+            }
+            onValueChange={(newValue) => setRoundsUntilLongBreak(newValue)}
+            disabled={!isCustomMode}
+          />
+
+          {/* 設定を保存するボタン */}
+          <View style={styles.saveButtonContainer}>
+            <CustomButton
+              title="保存"
+              onPress={handleSave}
+              variant="primary"
+              size="small"
+              style={styles.saveButton}
+            />
+          </View>
+        </ScrollView>
+      </View>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
   },
   content: {
     padding: 20,
-    paddingBottom: 80,
+    paddingBottom: 100,
   },
   section: {
     marginBottom: 24,
+    backgroundColor: colors.background.surface,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
   label: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Orbitron-Medium",
     marginBottom: 8,
-    color: "#333",
+    color: colors.text.primary,
+    letterSpacing: 0.5,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.border.default,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: colors.background.darker,
+    color: colors.text.primary,
+    fontFamily: "Orbitron-Regular",
+  },
+  saveButtonContainer: {
+    paddingHorizontal: 0,
+    paddingTop: 12,
+    paddingBottom: 0,
   },
   saveButton: {
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
-    padding: 16,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  saveButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
+    width: "100%",
+    paddingVertical: 8,
+    minHeight: 40,
   },
   toggleContainer: {
     flexDirection: "row",
@@ -478,56 +500,58 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary.main,
     justifyContent: "center",
     alignItems: "center",
   },
   numberButtonDisabled: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: colors.background.surface,
+    borderWidth: 1,
+    borderColor: colors.border.light,
   },
   numberButtonText: {
     fontSize: 24,
-    color: "#fff",
+    color: colors.text.primary,
     fontWeight: "bold",
   },
   numberButtonTextDisabled: {
-    color: "#999",
+    color: colors.text.muted,
   },
   numberDisplay: {
     minWidth: 60,
     marginHorizontal: 16,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: colors.background.darker,
     borderRadius: 8,
     alignItems: "center",
   },
   numberDisplayDisabled: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: colors.background.surface,
   },
   numberDisplayText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#333",
+    color: colors.text.primary,
   },
   numberDisplayTextDisabled: {
-    color: "#999",
+    color: colors.text.muted,
   },
   numberDisplayInput: {
     minWidth: 60,
     marginHorizontal: 16,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: colors.background.darker,
     borderRadius: 8,
     textAlign: "center",
     fontSize: 18,
     fontWeight: "600",
-    color: "#333",
+    color: colors.text.primary,
     borderWidth: 1,
-    borderColor: "#007AFF",
+    borderColor: colors.primary.main,
   },
   labelDisabled: {
-    color: "#999",
+    color: colors.text.muted,
   },
 });

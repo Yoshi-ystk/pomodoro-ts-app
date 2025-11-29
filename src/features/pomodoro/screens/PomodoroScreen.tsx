@@ -5,15 +5,17 @@
  * タイマーの制御（開始/一時停止/リセット）と設定画面への遷移を提供。
  */
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { usePomodoroTimer } from "../hooks/usePomodoroTimer";
 import { formatTime } from "../../../utils/time";
-import { TimerControls } from "../../../components/TimerControls";
 import { usePomodoroSettings } from "../contexts/PomodoroSettingsContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { TimerDisplay } from "../../../components/TimerDisplay";
+import { GradientBackground } from "../../../components/GradientBackground";
+import { CustomButton } from "../../../components/CustomButton";
+import { colors, shadows } from "../../../theme/colors";
 /**
  * ナビゲーションのパラメータ型定義
  */
@@ -47,32 +49,46 @@ export const PomodoroScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      {/* 設定画面への遷移ボタン */}
-      <TouchableOpacity
-        style={styles.settingsButton}
-        onPress={() => navigation.navigate("Settings")}
-      >
-        <Text style={styles.settingsButtonText}>設定</Text>
-      </TouchableOpacity>
+    <GradientBackground>
+      {/* フェーズ表示 - グロー効果付き */}
+      <View style={styles.phaseContainer}>
+        <Text style={styles.phaseText}>{phaseLabel}</Text>
+        <View style={[styles.roundBadge, shadows.glow.small]}>
+          <Text style={styles.roundText}>{round} 周目</Text>
+        </View>
+      </View>
 
-      {/* 現在のフェーズ表示（作業/短休憩/長休憩） */}
-      <Text style={styles.phaseText}>{phaseLabel}</Text>
-
-      {/* 現在の周回数表示 */}
-      <Text style={styles.roundText}>{round} 周目</Text>
-
-      {/* 残り時間表示（mm:ss形式） */}
+      {/* タイマー表示 */}
       <TimerDisplay time={formatTime(seconds)} />
 
-      {/* タイマー制御ボタン（開始/一時停止/リセット） */}
-      <TimerControls
-        isRunning={isRunning}
-        start={start}
-        pause={pause}
-        reset={reset}
-      />
-    </View>
+      {/* コントロールボタン */}
+      <View style={styles.controlsContainer}>
+        {!isRunning ? (
+          <CustomButton
+            title="START"
+            onPress={start}
+            variant="primary"
+            size="large"
+            style={styles.controlButton}
+          />
+        ) : (
+          <CustomButton
+            title="PAUSE"
+            onPress={pause}
+            variant="secondary"
+            size="large"
+            style={styles.controlButton}
+          />
+        )}
+        <CustomButton
+          title="RESET"
+          onPress={reset}
+          variant="outline"
+          size="medium"
+          style={styles.controlButton}
+        />
+      </View>
+    </GradientBackground>
   );
 };
 
@@ -81,22 +97,45 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    paddingHorizontal: 24,
   },
-  settingsButton: {
-    position: "absolute",
-    top: 60,
-    right: 24,
+  phaseContainer: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  phaseText: {
+    fontSize: 32,
+    fontFamily: "Orbitron-Bold",
+    color: colors.primary.main,
+    marginBottom: 16,
+    textTransform: "uppercase",
+    letterSpacing: 3,
+    textShadowColor: colors.primary.glow,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
+  },
+  roundBadge: {
+    backgroundColor: colors.primary.background,
+    paddingHorizontal: 20,
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.primary.main,
   },
-  settingsButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+  roundText: {
+    fontSize: 14,
+    fontFamily: "Orbitron-Medium",
+    color: colors.text.secondary,
+    letterSpacing: 1,
   },
-
-  phaseText: { fontSize: 24, marginBottom: 10 },
-  roundText: { fontSize: 20, marginBottom: 20 },
+  controlsContainer: {
+    marginTop: 40,
+    gap: 16,
+    width: "100%",
+    alignItems: "center",
+  },
+  controlButton: {
+    width: "100%",
+    maxWidth: 280,
+  },
 });
