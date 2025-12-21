@@ -1,12 +1,6 @@
 /**
- * ポモドーロタイマーの設定画面コンポーネント
- *
- * 以下の設定を変更できる：
- * - フェーズの表示名（作業/短休憩/長休憩）
- * - カスタムモードの有効/無効
- * - カスタムモード時のタイマー設定（作業時間、休憩時間、セット回数）
- *
- * カスタムモードが無効の場合は、タイマー設定は読み取り専用（基本モード）。
+ * 設定画面コンポーネント
+ * ポモドーロタイマーの設定（フェーズ名、カスタムモード、時間設定）を変更可能
  */
 import React, { useState, useEffect } from "react";
 import {
@@ -21,41 +15,38 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { usePomodoroSettings } from "../features/pomodoro/contexts/PomodoroSettingsContext";
-import { colors } from "../theme/colors";
+import { getThemeColors } from "../theme/colors";
 import { GradientBackground } from "../components/GradientBackground";
 import { CustomButton } from "../components/CustomButton";
+import { useTheme } from "../theme/ThemeContext";
 
 export const SettingScreen = () => {
+  const { theme, toggleTheme } = useTheme();
+  const colors = getThemeColors(theme);
   const navigation = useNavigation();
 
   // 設定コンテキストから設定と保存関数を取得
   const { settings, isLoading, saveSettings, saveConfig, defaultConfig } =
     usePomodoroSettings();
 
-  /**
-   * ローカル状態で入力値を管理
-   * 設定を保存する前に、ユーザーの入力値を一時的に保持
-   */
-  const [workLabel, setWorkLabel] = useState(""); // 作業フェーズの表示名
-  const [shortBreakLabel, setShortBreakLabel] = useState(""); // 短休憩フェーズの表示名
-  const [longBreakLabel, setLongBreakLabel] = useState(""); // 長休憩フェーズの表示名
-  const [isCustomMode, setIsCustomMode] = useState(false); // カスタムモードの有効/無効
-  const [workMinutes, setWorkMinutes] = useState(25); // 作業時間（分）
-  const [shortBreakMinutes, setShortBreakMinutes] = useState(5); // 短休憩時間（分）
-  const [longBreakMinutes, setLongBreakMinutes] = useState(15); // 長休憩時間（分）
-  const [roundsUntilLongBreak, setRoundsUntilLongBreak] = useState(4); // 1セットあたりの作業回数
+  // ローカル状態で入力値を管理（保存前の一時的な保持）
+  const [workLabel, setWorkLabel] = useState("");
+  const [shortBreakLabel, setShortBreakLabel] = useState("");
+  const [longBreakLabel, setLongBreakLabel] = useState("");
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [workMinutes, setWorkMinutes] = useState(25);
+  const [shortBreakMinutes, setShortBreakMinutes] = useState(5);
+  const [longBreakMinutes, setLongBreakMinutes] = useState(15);
+  const [roundsUntilLongBreak, setRoundsUntilLongBreak] = useState(4);
 
-  /**
-   * 設定コンテキストから設定を読み込んでローカル状態に反映
-   * 設定が読み込まれたら、フォームの初期値を設定
-   */
+  // 設定コンテキストから設定を読み込んでローカル状態に反映
   useEffect(() => {
     if (!isLoading && settings) {
       setWorkLabel(settings.phaseLabels.work);
       setShortBreakLabel(settings.phaseLabels.shortBreak);
       setLongBreakLabel(settings.phaseLabels.longBreak);
       setIsCustomMode(settings.useCustomConfig);
-      // 秒数を分に変換して表示
+      // 秒数を分に変換
       setWorkMinutes(Math.floor(settings.customConfig.workSeconds / 60));
       setShortBreakMinutes(
         Math.floor(settings.customConfig.shortBreakSeconds / 60)
@@ -67,16 +58,7 @@ export const SettingScreen = () => {
     }
   }, [settings, isLoading]);
 
-  /**
-   * 数値を増減する汎用関数
-   * 最小値と最大値の範囲内で値を変更
-   *
-   * @param current - 現在の値
-   * @param setter - 値を設定する関数
-   * @param min - 最小値
-   * @param max - 最大値
-   * @param delta - 増減する値（+1または-1）
-   */
+  // 数値を増減する汎用関数（最小値・最大値の範囲内で値を変更）
   const adjustValue = (
     current: number,
     setter: (val: number) => void,
@@ -90,13 +72,10 @@ export const SettingScreen = () => {
     }
   };
 
-  /**
-   * 設定を保存する関数
-   * ローカル状態の値を設定コンテキストに保存し、AsyncStorageにも永続化
-   */
+  // 設定を保存（ローカル状態をコンテキストに反映し、AsyncStorageに永続化）
   const handleSave = async () => {
     try {
-      // カスタム設定を保存
+      // カスタム設定を構築（分を秒に変換）
       const customConfig = {
         workSeconds: workMinutes * 60,
         shortBreakSeconds: shortBreakMinutes * 60,
@@ -114,7 +93,7 @@ export const SettingScreen = () => {
         customConfig: customConfig,
       });
 
-      // カスタムモードがONの場合はconfigにも反映
+      // カスタムモードが有効な場合はカスタム設定を、無効な場合はデフォルト設定を使用
       if (isCustomMode) {
         await saveConfig(customConfig);
       } else {
@@ -129,10 +108,7 @@ export const SettingScreen = () => {
     }
   };
 
-  /**
-   * カスタムモードの切り替え処理
-   * カスタムモードが無効の場合、タイマー設定の入力欄が無効化される
-   */
+  // カスタムモードの切り替え（無効時はタイマー設定入力欄が無効化される）
   const handleToggleCustomMode = (value: boolean) => {
     setIsCustomMode(value);
   };
@@ -140,16 +116,21 @@ export const SettingScreen = () => {
   // 設定の読み込み中はローディング表示
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text>読み込み中...</Text>
-      </View>
+      <GradientBackground>
+        <View
+          style={[
+            localStyles.container,
+            { backgroundColor: colors.background.dark },
+          ]}
+        >
+          <Text style={{ color: colors.text.primary }}>読み込み中...</Text>
+        </View>
+      </GradientBackground>
     );
   }
 
-  /**
-   * 数値入力用のナンバーピッカーコンポーネント
-   * +/-ボタンと数値表示で構成され、カスタムモードが無効の場合は無効化
-   */
+  // 数値入力用のナンバーピッカーコンポーネント
+  // +/-ボタンと数値表示で構成。カスタムモード無効時は無効化
   const NumberPicker = ({
     label,
     value,
@@ -177,27 +158,26 @@ export const SettingScreen = () => {
       setInputValue(value.toString());
     }, [value]);
 
-    // 長押しの処理
+    // 長押し処理（最初の1回は即実行、その後150ms間隔で連続実行）
     const handlePressIn = (isIncrease: boolean) => {
       if (disabled) return;
 
-      // 最初の1回はすぐに実行
       if (isIncrease) {
         onIncrease();
       } else {
         onDecrease();
       }
 
-      // その後は一定間隔で連続実行
       pressIntervalRef.current = setInterval(() => {
         if (isIncrease) {
           onIncrease();
         } else {
           onDecrease();
         }
-      }, 150); // 150msごとに実行
+      }, 150);
     };
 
+    // 長押し終了時にインターバルをクリア
     const handlePressOut = () => {
       if (pressIntervalRef.current) {
         clearInterval(pressIntervalRef.current);
@@ -205,7 +185,7 @@ export const SettingScreen = () => {
       }
     };
 
-    // クリーンアップ
+    // コンポーネントアンマウント時にインターバルをクリア
     React.useEffect(() => {
       return () => {
         if (pressIntervalRef.current) {
@@ -219,6 +199,7 @@ export const SettingScreen = () => {
       setInputValue(text);
     };
 
+    // 入力終了時の検証（範囲内の値のみ受け付け、無効な場合は元の値に戻す）
     const handleInputBlur = () => {
       const numValue = parseInt(inputValue, 10);
       if (
@@ -229,7 +210,6 @@ export const SettingScreen = () => {
       ) {
         onValueChange(numValue);
       } else {
-        // 無効な値の場合は元の値に戻す
         setInputValue(value.toString());
       }
     };
@@ -305,10 +285,20 @@ export const SettingScreen = () => {
     );
   };
 
+  const styles = createStyles(colors);
+
   return (
     <GradientBackground>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
+          {/* テーマ切り替え */}
+          <View style={styles.section}>
+            <View style={styles.toggleContainer}>
+              <Text style={styles.label}>ダークモード</Text>
+              <Switch value={theme === "dark"} onValueChange={toggleTheme} />
+            </View>
+          </View>
+
           {/* フェーズ表示名の設定 */}
           <View style={styles.section}>
             <Text style={styles.label}>作業フェーズの表示名</Text>
@@ -443,115 +433,127 @@ export const SettingScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+// スタイルを動的に生成する関数
+const createStyles = (colors: ReturnType<typeof getThemeColors>) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    content: {
+      padding: 20,
+      paddingBottom: 40,
+    },
+    section: {
+      marginBottom: 24,
+      backgroundColor: colors.background.surface,
+      padding: 16,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    label: {
+      fontSize: 16,
+      fontFamily: "Orbitron-Medium",
+      marginBottom: 8,
+      color: colors.text.primary,
+      letterSpacing: 0.5,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      backgroundColor: colors.background.darker,
+      color: colors.text.primary,
+      fontFamily: "Orbitron-Regular",
+    },
+    saveButtonContainer: {
+      paddingHorizontal: 0,
+      paddingTop: 8,
+      paddingBottom: 0,
+      marginTop: 8,
+    },
+    saveButton: {
+      width: "100%",
+      paddingVertical: 8,
+      minHeight: 40,
+    },
+    toggleContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    numberPickerContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    numberButton: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.primary.main,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    numberButtonDisabled: {
+      backgroundColor: colors.background.surface,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    numberButtonText: {
+      fontSize: 24,
+      color: colors.text.primary,
+      fontWeight: "bold",
+    },
+    numberButtonTextDisabled: {
+      color: colors.text.muted,
+    },
+    numberDisplay: {
+      minWidth: 60,
+      marginHorizontal: 16,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      backgroundColor: colors.background.darker,
+      borderRadius: 8,
+      alignItems: "center",
+    },
+    numberDisplayDisabled: {
+      backgroundColor: colors.background.surface,
+    },
+    numberDisplayText: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.text.primary,
+    },
+    numberDisplayTextDisabled: {
+      color: colors.text.muted,
+    },
+    numberDisplayInput: {
+      minWidth: 60,
+      marginHorizontal: 16,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      backgroundColor: colors.background.darker,
+      borderRadius: 8,
+      textAlign: "center",
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.text.primary,
+      borderWidth: 1,
+      borderColor: colors.primary.main,
+    },
+    labelDisabled: {
+      color: colors.text.muted,
+    },
+  });
+
+// ローディング用のスタイル
+const localStyles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 100,
-  },
-  section: {
-    marginBottom: 24,
-    backgroundColor: colors.background.surface,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  label: {
-    fontSize: 16,
-    fontFamily: "Orbitron-Medium",
-    marginBottom: 8,
-    color: colors.text.primary,
-    letterSpacing: 0.5,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: colors.background.darker,
-    color: colors.text.primary,
-    fontFamily: "Orbitron-Regular",
-  },
-  saveButtonContainer: {
-    paddingHorizontal: 0,
-    paddingTop: 12,
-    paddingBottom: 0,
-  },
-  saveButton: {
-    width: "100%",
-    paddingVertical: 8,
-    minHeight: 40,
-  },
-  toggleContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  numberPickerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  numberButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.primary.main,
     justifyContent: "center",
     alignItems: "center",
-  },
-  numberButtonDisabled: {
-    backgroundColor: colors.background.surface,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  numberButtonText: {
-    fontSize: 24,
-    color: colors.text.primary,
-    fontWeight: "bold",
-  },
-  numberButtonTextDisabled: {
-    color: colors.text.muted,
-  },
-  numberDisplay: {
-    minWidth: 60,
-    marginHorizontal: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: colors.background.darker,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  numberDisplayDisabled: {
-    backgroundColor: colors.background.surface,
-  },
-  numberDisplayText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text.primary,
-  },
-  numberDisplayTextDisabled: {
-    color: colors.text.muted,
-  },
-  numberDisplayInput: {
-    minWidth: 60,
-    marginHorizontal: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: colors.background.darker,
-    borderRadius: 8,
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text.primary,
-    borderWidth: 1,
-    borderColor: colors.primary.main,
-  },
-  labelDisabled: {
-    color: colors.text.muted,
   },
 });

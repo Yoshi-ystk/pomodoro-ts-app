@@ -1,3 +1,7 @@
+/**
+ * カスタムボタンコンポーネント
+ * テーマ対応のボタン。primary、secondary、outlineの3種類のバリアントをサポート
+ */
 import React from "react";
 import {
   TouchableOpacity,
@@ -6,8 +10,9 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { colors, shadows, gradients } from "../theme/colors";
+import { useTheme } from "../theme/ThemeContext";
+import { getThemeColors } from "../theme/colors";
+import { shadows } from "../theme/colors";
 
 type Props = {
   title: string;
@@ -28,6 +33,10 @@ export const CustomButton: React.FC<Props> = ({
   loading = false,
   style,
 }) => {
+  const { theme } = useTheme();
+  const colors = getThemeColors(theme);
+
+  // ボタン内のコンテンツ（ローディング表示またはテキスト）
   const ButtonContent = () => (
     <>
       {loading ? (
@@ -38,7 +47,18 @@ export const CustomButton: React.FC<Props> = ({
         />
       ) : (
         <Text
-          style={[styles.text, styles[`${variant}Text`], styles[`${size}Text`]]}
+          style={[
+            styles.text,
+            styles[`${variant}Text`],
+            styles[`${size}Text`],
+            variant === "primary" && {
+              color: "#FFFFFF",
+              textShadowColor: colors.primary.glowStrong,
+            },
+            (variant === "secondary" || variant === "outline") && {
+              color: colors.primary.main,
+            },
+          ]}
         >
           {title}
         </Text>
@@ -46,6 +66,7 @@ export const CustomButton: React.FC<Props> = ({
     </>
   );
 
+  // primary: 塗りつぶしボタン
   if (variant === "primary") {
     return (
       <TouchableOpacity
@@ -54,23 +75,21 @@ export const CustomButton: React.FC<Props> = ({
         activeOpacity={0.8}
         style={[
           styles.button,
+          styles.primary,
           styles[size],
           disabled && styles.disabled,
+          {
+            backgroundColor: colors.primary.main,
+          },
           style,
         ]}
       >
-        <LinearGradient
-          colors={gradients.button.primary}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.gradient, styles[size]]}
-        >
-          <ButtonContent />
-        </LinearGradient>
+        <ButtonContent />
       </TouchableOpacity>
     );
   }
 
+  // secondary: 背景色付きボーダーボタン
   if (variant === "secondary") {
     return (
       <TouchableOpacity
@@ -83,6 +102,10 @@ export const CustomButton: React.FC<Props> = ({
           styles[size],
           disabled && styles.disabled,
           shadows.glow.subtle,
+          {
+            backgroundColor: colors.primary.background,
+            borderColor: colors.primary.main,
+          },
           style,
         ]}
       >
@@ -91,7 +114,7 @@ export const CustomButton: React.FC<Props> = ({
     );
   }
 
-  // outline variant
+  // outline: ボーダーのみのボタン
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -102,6 +125,9 @@ export const CustomButton: React.FC<Props> = ({
         styles.outline,
         styles[size],
         disabled && styles.disabled,
+        {
+          borderColor: colors.primary.main,
+        },
         style,
       ]}
     >
@@ -117,21 +143,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     overflow: "hidden",
   },
-  gradient: {
-    width: "100%",
-    height: "40%",
-    alignItems: "center",
-    justifyContent: "center",
+  primary: {
+    // 背景色は動的に適用
   },
   secondary: {
-    backgroundColor: colors.primary.background,
     borderWidth: 1,
-    borderColor: colors.primary.main,
   },
   outline: {
     backgroundColor: "transparent",
     borderWidth: 2,
-    borderColor: colors.primary.main,
   },
   small: {
     paddingVertical: 10,
@@ -157,16 +177,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   primaryText: {
-    color: colors.text.primary,
-    textShadowColor: colors.primary.glowStrong,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
   secondaryText: {
-    color: colors.primary.main,
+    // スタイルは動的に適用されるため空
   },
   outlineText: {
-    color: colors.primary.main,
+    // スタイルは動的に適用されるため空
   },
   smallText: {
     fontSize: 14,

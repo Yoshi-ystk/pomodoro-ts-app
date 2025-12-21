@@ -41,3 +41,6 @@ yarn-error.*
 
 # VSCode settings
 .vscode/
+
+# Other
+docs/

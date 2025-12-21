@@ -1,33 +1,22 @@
 /**
  * ポモドーロタイマーのメイン画面コンポーネント
- *
- * タイマーの状態（残り時間、フェーズ、周回数）を表示し、
- * タイマーの制御（開始/一時停止/リセット）と設定画面への遷移を提供。
+ * タイマーの状態表示と制御（開始/一時停止/リセット）を提供
  */
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { usePomodoroTimer } from "../hooks/usePomodoroTimer";
 import { formatTime } from "../../../utils/time";
 import { usePomodoroSettings } from "../contexts/PomodoroSettingsContext";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
 import { TimerDisplay } from "../../../components/TimerDisplay";
 import { GradientBackground } from "../../../components/GradientBackground";
 import { CustomButton } from "../../../components/CustomButton";
-import { colors, shadows } from "../../../theme/colors";
-/**
- * ナビゲーションのパラメータ型定義
- */
-type RootStackParamList = {
-  Pomodoro: undefined;
-  Settings: undefined;
-};
+import { useTheme } from "../../../theme/ThemeContext";
+import { getThemeColors } from "../../../theme/colors";
+import { shadows } from "../../../theme/colors";
 
 export const PomodoroScreen = () => {
-  // ナビゲーション
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
+  const colors = getThemeColors(theme);
 
   // 設定コンテキストから設定を取得
   const { isLoading, getPhaseLabel } = usePomodoroSettings();
@@ -39,12 +28,14 @@ export const PomodoroScreen = () => {
   // 現在のフェーズの表示名を取得
   const phaseLabel = getPhaseLabel(phase);
 
-  // 設定の読み込み中はローディング表示
+  // 設定読み込み中のローディング表示
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text>読み込み中...</Text>
-      </View>
+      <GradientBackground>
+        <View style={styles.container}>
+          <Text style={{ color: colors.text.primary }}>読み込み中...</Text>
+        </View>
+      </GradientBackground>
     );
   }
 
@@ -52,9 +43,30 @@ export const PomodoroScreen = () => {
     <GradientBackground>
       {/* フェーズ表示 - グロー効果付き */}
       <View style={styles.phaseContainer}>
-        <Text style={styles.phaseText}>{phaseLabel}</Text>
-        <View style={[styles.roundBadge, shadows.glow.small]}>
-          <Text style={styles.roundText}>{round} 周目</Text>
+        <Text
+          style={[
+            styles.phaseText,
+            {
+              color: colors.primary.main,
+              textShadowColor: colors.primary.glow,
+            },
+          ]}
+        >
+          {phaseLabel}
+        </Text>
+        <View
+          style={[
+            styles.roundBadge,
+            shadows.glow.small,
+            {
+              backgroundColor: colors.primary.background,
+              borderColor: colors.primary.main,
+            },
+          ]}
+        >
+          <Text style={[styles.roundText, { color: colors.text.secondary }]}>
+            {round} 周目
+          </Text>
         </View>
       </View>
 
@@ -63,28 +75,18 @@ export const PomodoroScreen = () => {
 
       {/* コントロールボタン */}
       <View style={styles.controlsContainer}>
-        {!isRunning ? (
-          <CustomButton
-            title="START"
-            onPress={start}
-            variant="primary"
-            size="large"
-            style={styles.controlButton}
-          />
-        ) : (
-          <CustomButton
-            title="PAUSE"
-            onPress={pause}
-            variant="secondary"
-            size="large"
-            style={styles.controlButton}
-          />
-        )}
+        <CustomButton
+          title={isRunning ? "PAUSE" : "START"}
+          onPress={isRunning ? pause : start}
+          variant={isRunning ? "secondary" : "primary"}
+          size="large"
+          style={styles.controlButton}
+        />
         <CustomButton
           title="RESET"
           onPress={reset}
           variant="outline"
-          size="medium"
+          size="large"
           style={styles.controlButton}
         />
       </View>
@@ -106,26 +108,21 @@ const styles = StyleSheet.create({
   phaseText: {
     fontSize: 32,
     fontFamily: "Orbitron-Bold",
-    color: colors.primary.main,
     marginBottom: 16,
     textTransform: "uppercase",
     letterSpacing: 3,
-    textShadowColor: colors.primary.glow,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 16,
   },
   roundBadge: {
-    backgroundColor: colors.primary.background,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.primary.main,
   },
   roundText: {
     fontSize: 14,
     fontFamily: "Orbitron-Medium",
-    color: colors.text.secondary,
     letterSpacing: 1,
   },
   controlsContainer: {

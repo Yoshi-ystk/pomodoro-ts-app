@@ -5,7 +5,7 @@
  * 常に「リセット」ボタンを表示。
  */
 import React from "react";
-import { View, Button, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { PomodoroControls } from "../features/pomodoro/types/pomodoro";
 import { CustomButton } from "./CustomButton";
 

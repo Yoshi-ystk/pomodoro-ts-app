@@ -1,12 +1,16 @@
 /**
  * ヘッダー用のアイコンボタンコンポーネント
- *
- * ナビゲーションヘッダーの右側などに表示するアイコンボタン用。
- * 設定ボタンなど、ヘッダーに配置されるアクションボタンに使用。
+ * ナビゲーションヘッダーに表示するアイコンボタン（設定ボタンなど）
  */
 import React from "react";
-import { TouchableOpacity, Text, TouchableOpacityProps } from "react-native";
-import { headerButton } from "../theme/colors";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TouchableOpacityProps,
+} from "react-native";
+import { useTheme } from "../theme/ThemeContext";
+import { getHeaderButton } from "../theme/colors";
 
 type Props = {
   /** 表示するアイコン（テキスト） */
@@ -18,13 +22,23 @@ type Props = {
 };
 
 export const HeaderButton: React.FC<Props> = ({ icon, onPress, style }) => {
+  const { theme } = useTheme();
+  const headerButton = getHeaderButton(theme);
+
   return (
     <TouchableOpacity
       style={[headerButton.container, style]}
       activeOpacity={headerButton.activeOpacity}
       onPress={onPress}
     >
-      <Text style={headerButton.icon}>{icon}</Text>
+      <Text style={[headerButton.icon, styles.iconText]}>{icon}</Text>
     </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  iconText: {
+    paddingBottom: 10,
+    paddingLeft: 15,
+  },
+});
